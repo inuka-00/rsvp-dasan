@@ -141,7 +141,10 @@ app.post('/api/rsvp', async (req, res) => {
     res.json({ 
       success: true, 
       message: 'RSVP saved successfully!',
-      groomPhone: process.env.GROOM_PHONE || ''
+      groomPhone: process.env.GROOM_PHONE || '',
+      bridePhone: process.env.BRIDE_PHONE || process.env.GROOM_PHONE || '',
+      groomName: process.env.GROOM_NAME || 'Dasan',
+      brideName: process.env.BRIDE_NAME || 'Sharmila'
     });
   } catch (err) {
     console.error('Error saving RSVP:', err);
