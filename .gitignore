@@ -1,0 +1,9 @@
+# Environment files
+.env
+.env.local
+.env.production
+
+# Database & local secrets
+wedding.db
+recovery-codes.txt
+node_modules/
