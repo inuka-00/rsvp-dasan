@@ -41,6 +41,7 @@
 html {
   scroll-behavior: smooth;
   font-size: 15px;
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -145,13 +146,13 @@ h1, h2, h3, h4 {
 }
 
 /* ==========================================================================
-   1. Hero Section (Mobile Portrait Optimized)
+   1. Hero Section (Mobile Portrait Optimized & Zero Jump)
    ========================================================================== */
 .hero-section {
   position: relative;
-  height: 100dvh;
+  height: 100svh; /* 100svh prevents dynamic address bar height jump on mobile */
   min-height: 560px;
-  max-height: 900px;
+  max-height: 850px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -1106,7 +1107,7 @@ td {
 }
 
 /* ==========================================================================
-   7. Animations
+   7. Animations & Scroll Reveal (Smooth Zero-Jitter Transitions)
    ========================================================================== */
 @keyframes slowZoom {
   0% { transform: scale(1.02); }
@@ -1139,11 +1140,12 @@ td {
 .fade-in:nth-child(5) { animation-delay: 0.9s; }
 .fade-in:nth-child(6) { animation-delay: 1.1s; }
 
-/* Scroll Reveal Styling */
+/* Scroll Reveal Styling (Smooth Fade-In & Subdued Translate) */
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(12px);
+  will-change: opacity, transform;
+  transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .scroll-reveal.active {
