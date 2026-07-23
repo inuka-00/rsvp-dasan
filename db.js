@@ -1,8 +1,14 @@
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
-// Determine database type based on environment variable
-const isPostgres = !!process.env.DATABASE_URL;
+// Determine database connection method based on environment variables
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+const isSupabase = !!(supabaseUrl && supabaseKey);
+const isPostgres = !isSupabase && !!process.env.DATABASE_URL;
+
+let supabase;
 let pgPool;
 let sqliteDb;
 let initializedPromise = null;
@@ -11,7 +17,10 @@ async function ensureDb() {
   if (initializedPromise) return initializedPromise;
   
   initializedPromise = (async () => {
-    if (isPostgres) {
+    if (isSupabase) {
+      supabase = createClient(supabaseUrl, supabaseKey);
+      console.log('Database initialized: Supabase Client (createClient)');
+    } else if (isPostgres) {
       const { Pool } = require('pg');
       pgPool = new Pool({
         connectionString: process.env.DATABASE_URL,
@@ -29,7 +38,7 @@ async function ensureDb() {
         );
         ALTER TABLE rsvps ADD COLUMN IF NOT EXISTS comment TEXT;
       `);
-      console.log('Database initialized: PostgreSQL/Supabase');
+      console.log('Database initialized: PostgreSQL (DATABASE_URL)');
     } else {
       const sqlite3 = require('sqlite3').verbose();
       const { open } = require('sqlite');
@@ -51,7 +60,7 @@ async function ensureDb() {
       try {
         await sqliteDb.exec(`ALTER TABLE rsvps ADD COLUMN comment TEXT`);
       } catch (e) {
-        // Column already exists, ignore error
+        // Column already exists
       }
       console.log('Database initialized: SQLite (local)');
     }
@@ -62,7 +71,17 @@ async function ensureDb() {
 
 async function insertRsvp(guestName, status, comment = '') {
   await ensureDb();
-  if (isPostgres) {
+  if (isSupabase) {
+    const { error } = await supabase
+      .from('rsvps')
+      .insert([
+        { guest_name: guestName, status: status, comment: comment }
+      ]);
+    if (error) {
+      console.error('Supabase insert error:', error);
+      throw error;
+    }
+  } else if (isPostgres) {
     await pgPool.query(
       'INSERT INTO rsvps (guest_name, status, comment) VALUES ($1, $2, $3)',
       [guestName, status, comment]
@@ -77,7 +96,17 @@ async function insertRsvp(guestName, status, comment = '') {
 
 async function getRsvps() {
   await ensureDb();
-  if (isPostgres) {
+  if (isSupabase) {
+    const { data, error } = await supabase
+      .from('rsvps')
+      .select('id, guest_name, status, comment, created_at')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Supabase getRsvps error:', error);
+      throw error;
+    }
+    return data || [];
+  } else if (isPostgres) {
     const result = await pgPool.query(
       'SELECT id, guest_name, status, comment, created_at FROM rsvps ORDER BY created_at DESC'
     );
@@ -91,7 +120,20 @@ async function getRsvps() {
 
 async function getRsvpStats() {
   await ensureDb();
-  if (isPostgres) {
+  if (isSupabase) {
+    const { data, error } = await supabase
+      .from('rsvps')
+      .select('status');
+    if (error) {
+      console.error('Supabase getRsvpStats error:', error);
+      throw error;
+    }
+    const rsvps = data || [];
+    const total = rsvps.length;
+    const attending = rsvps.filter(r => r.status === 'Accepted').length;
+    const declining = rsvps.filter(r => r.status === 'Declined').length;
+    return { total, attending, declining };
+  } else if (isPostgres) {
     const result = await pgPool.query(`
       SELECT 
         COUNT(*)::integer as total,
