@@ -24,8 +24,10 @@ async function ensureDb() {
           id SERIAL PRIMARY KEY,
           guest_name TEXT NOT NULL,
           status TEXT NOT NULL,
+          comment TEXT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
+        );
+        ALTER TABLE rsvps ADD COLUMN IF NOT EXISTS comment TEXT;
       `);
       console.log('Database initialized: PostgreSQL/Supabase');
     } else {
@@ -42,9 +44,15 @@ async function ensureDb() {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           guest_name TEXT NOT NULL,
           status TEXT NOT NULL,
+          comment TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `);
+      try {
+        await sqliteDb.exec(`ALTER TABLE rsvps ADD COLUMN comment TEXT`);
+      } catch (e) {
+        // Column already exists, ignore error
+      }
       console.log('Database initialized: SQLite (local)');
     }
   })();
@@ -52,17 +60,17 @@ async function ensureDb() {
   return initializedPromise;
 }
 
-async function insertRsvp(guestName, status) {
+async function insertRsvp(guestName, status, comment = '') {
   await ensureDb();
   if (isPostgres) {
     await pgPool.query(
-      'INSERT INTO rsvps (guest_name, status) VALUES ($1, $2)',
-      [guestName, status]
+      'INSERT INTO rsvps (guest_name, status, comment) VALUES ($1, $2, $3)',
+      [guestName, status, comment]
     );
   } else {
     await sqliteDb.run(
-      'INSERT INTO rsvps (guest_name, status, created_at) VALUES (?, ?, DATETIME(CURRENT_TIMESTAMP, "localtime"))',
-      [guestName, status]
+      'INSERT INTO rsvps (guest_name, status, comment, created_at) VALUES (?, ?, ?, DATETIME(CURRENT_TIMESTAMP, "localtime"))',
+      [guestName, status, comment]
     );
   }
 }
@@ -71,12 +79,12 @@ async function getRsvps() {
   await ensureDb();
   if (isPostgres) {
     const result = await pgPool.query(
-      'SELECT id, guest_name, status, created_at FROM rsvps ORDER BY created_at DESC'
+      'SELECT id, guest_name, status, comment, created_at FROM rsvps ORDER BY created_at DESC'
     );
     return result.rows;
   } else {
     return await sqliteDb.all(
-      'SELECT id, guest_name, status, created_at FROM rsvps ORDER BY created_at DESC'
+      'SELECT id, guest_name, status, comment, created_at FROM rsvps ORDER BY created_at DESC'
     );
   }
 }

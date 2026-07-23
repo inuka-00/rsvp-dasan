@@ -124,6 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const guestNameInput = document.getElementById('guest_name');
     const guestName = guestNameInput.value.trim();
+
+    const commentInput = document.getElementById('comment');
+    const comment = commentInput ? commentInput.value.trim() : '';
     
     // Get checked status radio button value
     const statusRadio = rsvpForm.querySelector('input[name="status"]:checked');
@@ -145,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ guest_name: guestName, status })
+        body: JSON.stringify({ guest_name: guestName, status, comment })
       });
 
       const result = await response.json();
@@ -168,6 +171,10 @@ document.addEventListener('DOMContentLoaded', () => {
           waMessage = `Hi! This is ${guestName}. I'm happy to confirm that I'll be attending your wedding. Looking forward to celebrating with you!`;
         } else {
           waMessage = `Hi! This is ${guestName}. Unfortunately, I won't be able to attend your wedding. Wishing you both a wonderful celebration and a lifetime of happiness.`;
+        }
+
+        if (comment) {
+          waMessage += `\n\nMessage: "${comment}"`;
         }
 
         const cleanPhone = result.groomPhone ? result.groomPhone.replace(/\D/g, '') : '';

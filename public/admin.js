@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       console.error('Error fetching RSVPs:', err);
-      tableBody.innerHTML = `<tr><td colspan="3" class="text-center py-4" style="color:var(--color-danger);">Error fetching RSVPs: ${err.message}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4" style="color:var(--color-danger);">Error fetching RSVPs: ${err.message}</td></tr>`;
     }
   };
 
@@ -160,7 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // A. Filter by Search Query & Status
     let filteredData = allRSVPs.filter(item => {
-      const matchesSearch = item.guest_name.toLowerCase().includes(searchVal);
+      const matchesSearch = item.guest_name.toLowerCase().includes(searchVal) ||
+                            (item.comment && item.comment.toLowerCase().includes(searchVal));
       const matchesStatus = filterVal === 'all' || item.status === filterVal;
       return matchesSearch && matchesStatus;
     });
@@ -208,8 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      // Safe HTML escaping for user guest name
+      // Safe HTML escaping for user guest name & comment
       const safeName = escapeHTML(row.guest_name);
+      const safeComment = row.comment ? escapeHTML(row.comment) : '<span style="opacity:0.5; font-style:italic;">No comment</span>';
       
       // Status styling class
       const badgeClass = row.status === 'Accepted' ? 'badge-accepted' : 'badge-declined';
@@ -218,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tr.innerHTML = `
         <td style="font-weight: 500;">${safeName}</td>
         <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+        <td style="font-size: 0.9rem; max-width: 250px; word-wrap: break-word;">${safeComment}</td>
         <td style="color: var(--text-secondary); font-size: 0.9rem;">${formattedDate}</td>
       `;
       

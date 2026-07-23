@@ -109,7 +109,7 @@ app.post('/api/admin/logout', (req, res) => {
 
 // Submit RSVP
 app.post('/api/rsvp', async (req, res) => {
-  const { guest_name, status } = req.body;
+  const { guest_name, status, comment } = req.body;
 
   // Validation
   if (!guest_name || typeof guest_name !== 'string' || guest_name.trim() === '') {
@@ -121,8 +121,10 @@ app.post('/api/rsvp', async (req, res) => {
     return res.status(400).json({ success: false, error: "Response must be 'Accepted' or 'Declined'." });
   }
 
+  const cleanComment = typeof comment === 'string' ? comment.trim() : '';
+
   try {
-    await insertRsvp(guest_name.trim(), normalizedStatus);
+    await insertRsvp(guest_name.trim(), normalizedStatus, cleanComment);
 
     res.json({ 
       success: true, 
@@ -157,12 +159,13 @@ app.get('/api/admin/export', authenticateAdmin, async (req, res) => {
   try {
     const rsvps = await getRsvps();
 
-    let csvContent = 'Guest Name,RSVP Status,Submission Date & Time\n';
+    let csvContent = 'Guest Name,RSVP Status,Message / Comment,Submission Date & Time\n';
     
     rsvps.forEach(row => {
-      // Escape quotes in guest name
+      // Escape quotes in guest name and comment
       const nameEscaped = `"${row.guest_name.replace(/"/g, '""')}"`;
-      csvContent += `${nameEscaped},${row.status},${row.created_at}\n`;
+      const commentEscaped = `"${(row.comment || '').replace(/"/g, '""')}"`;
+      csvContent += `${nameEscaped},${row.status},${commentEscaped},${row.created_at}\n`;
     });
 
     res.setHeader('Content-Type', 'text/csv');
