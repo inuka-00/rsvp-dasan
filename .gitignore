@@ -7,3 +7,5 @@
 wedding.db
 recovery-codes.txt
 node_modules/
+.vercel
+.env*
