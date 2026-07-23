@@ -38,39 +38,39 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   // 2. Audio Player Toggle
   // ==========================================================================
-  const audio = document.getElementById('wedding-music');
-  const audioBtn = document.getElementById('audio-btn');
-  const playIcon = audioBtn.querySelector('.play-icon');
-  const pauseIcon = audioBtn.querySelector('.pause-icon');
+  // const audio = document.getElementById('wedding-music');
+  // const audioBtn = document.getElementById('audio-btn');
+  // const playIcon = audioBtn.querySelector('.play-icon');
+  // const pauseIcon = audioBtn.querySelector('.pause-icon');
 
-  // Reduce volume to a pleasant background level
-  audio.volume = 0.35;
+  // // Reduce volume to a pleasant background level
+  // audio.volume = 0.35;
 
-  audioBtn.addEventListener('click', () => {
-    if (audio.paused) {
-      audio.play().then(() => {
-        playIcon.classList.add('hidden');
-        pauseIcon.classList.remove('hidden');
-        audioBtn.classList.add('playing');
-      }).catch(err => {
-        console.log("Audio autoplay prevented by browser:", err);
-      });
-    } else {
-      audio.pause();
-      playIcon.classList.remove('hidden');
-      pauseIcon.classList.add('hidden');
-      audioBtn.classList.remove('playing');
-    }
-  });
+  // audioBtn.addEventListener('click', () => {
+  //   if (audio.paused) {
+  //     audio.play().then(() => {
+  //       playIcon.classList.add('hidden');
+  //       pauseIcon.classList.remove('hidden');
+  //       audioBtn.classList.add('playing');
+  //     }).catch(err => {
+  //       console.log("Audio autoplay prevented by browser:", err);
+  //     });
+  //   } else {
+  //     audio.pause();
+  //     playIcon.classList.remove('hidden');
+  //     pauseIcon.classList.add('hidden');
+  //     audioBtn.classList.remove('playing');
+  //   }
+  // });
 
   // Try to start music on first user click anywhere if they haven't explicitly paused it
   let firstInteraction = true;
-  document.body.addEventListener('click', () => {
-    if (firstInteraction && audio.paused && !audioBtn.classList.contains('manually-paused')) {
-      // Don't autoplay unless they clicked something else, but we don't force it to avoid annoyance
-      firstInteraction = false;
-    }
-  }, { once: true });
+  // document.body.addEventListener('click', () => {
+  //   if (firstInteraction && audio.paused && !audioBtn.classList.contains('manually-paused')) {
+  //     // Don't autoplay unless they clicked something else, but we don't force it to avoid annoyance
+  //     firstInteraction = false;
+  //   }
+  // }, { once: true });
 
   // ==========================================================================
   // 3. Invitation Card Lightbox Zoom
@@ -158,6 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
         rsvpForm.classList.add('hidden');
         successCard.classList.remove('hidden');
 
+        // Smoothly scroll to center the success card and WhatsApp section in the viewport
+        successCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
         // Set tailored success message
         if (status === 'Accepted') {
           successMsg.textContent = `Thank you, ${guestName}! We are thrilled that you'll be celebrating with us.`;
@@ -179,18 +182,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const cleanPhone = result.groomPhone ? result.groomPhone.replace(/\D/g, '') : '';
         const encodedText = encodeURIComponent(waMessage);
-        const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedText}`;
+        const whatsappUrl = cleanPhone 
+          ? `https://wa.me/${cleanPhone}?text=${encodedText}`
+          : `https://wa.me/?text=${encodedText}`;
 
         whatsappBtn.href = whatsappUrl;
 
-        // Auto-redirect if mobile
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        if (isMobile && cleanPhone) {
-          setTimeout(() => {
-            window.location.href = whatsappUrl;
-          }, 1500); // 1.5 seconds delay so they read the submission success message
-        }
+        // Automatically open/redirect to WhatsApp after 1.5s delay (giving guest time to view confirmation)
+        setTimeout(() => {
+          window.location.href = whatsappUrl;
+        }, 1500);
       } else {
         throw new Error(result.error || 'Server error saving RSVP');
       }
