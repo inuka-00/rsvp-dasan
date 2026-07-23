@@ -168,30 +168,47 @@ document.addEventListener('DOMContentLoaded', () => {
           successMsg.textContent = `Thank you, ${guestName}. We are sorry you won't be able to make it, but we appreciate you letting us know.`;
         }
 
-        // WhatsApp integration
-        let waMessage = '';
-        if (status === 'Accepted') {
-          waMessage = `Hi! This is ${guestName}. I'm happy to confirm that I'll be attending your wedding. Looking forward to celebrating with you!`;
-        } else {
-          waMessage = `Hi! This is ${guestName}. Unfortunately, I won't be able to attend your wedding. Wishing you both a wonderful celebration and a lifetime of happiness.`;
-        }
+        // Store RSVP submission data for dynamic WhatsApp link building
+        const bridePhone = result.bridePhone || result.groomPhone || '';
+        const groomPhone = result.groomPhone || '';
+        const brideName = result.brideName || 'Sharmila';
+        const groomName = result.groomName || 'Dasan';
 
-        if (comment) {
-          waMessage += `\n\nMessage: "${comment}"`;
-        }
+        const updateWhatsAppLink = () => {
+          const recipientRadio = document.querySelector('input[name="wa_recipient"]:checked');
+          const targetRecipient = recipientRadio ? recipientRadio.value : 'groom';
 
-        const cleanPhone = result.groomPhone ? result.groomPhone.replace(/\D/g, '') : '';
-        const encodedText = encodeURIComponent(waMessage);
-        const whatsappUrl = cleanPhone 
-          ? `https://wa.me/${cleanPhone}?text=${encodedText}`
-          : `https://wa.me/?text=${encodedText}`;
+          const targetPhone = targetRecipient === 'bride' ? bridePhone : groomPhone;
+          const targetName = targetRecipient === 'bride' ? brideName : groomName;
+          const cleanPhone = targetPhone ? targetPhone.replace(/\D/g, '') : '';
 
-        whatsappBtn.href = whatsappUrl;
+          let waMessage = '';
+          if (status === 'Accepted') {
+            waMessage = `Hi ${targetName}! This is ${guestName}. I'm happy to confirm that I'll be attending your wedding. Looking forward to celebrating with you!`;
+          } else {
+            waMessage = `Hi ${targetName}! This is ${guestName}. Unfortunately, I won't be able to attend your wedding. Wishing you both a wonderful celebration and a lifetime of happiness.`;
+          }
 
-        // Automatically open/redirect to WhatsApp after 1.5s delay (giving guest time to view confirmation)
-        setTimeout(() => {
-          window.location.href = whatsappUrl;
-        }, 1500);
+          if (comment) {
+            waMessage += `\n\nMessage: "${comment}"`;
+          }
+
+          const encodedText = encodeURIComponent(waMessage);
+          const whatsappUrl = cleanPhone 
+            ? `https://wa.me/${cleanPhone}?text=${encodedText}`
+            : `https://wa.me/?text=${encodedText}`;
+
+          whatsappBtn.href = whatsappUrl;
+        };
+
+        // Initial link setup
+        updateWhatsAppLink();
+
+        // Update link whenever guest toggles between Groom and Bride
+        const recipientRadios = document.querySelectorAll('input[name="wa_recipient"]');
+        recipientRadios.forEach(radio => {
+          radio.addEventListener('change', updateWhatsAppLink);
+        });
       } else {
         throw new Error(result.error || 'Server error saving RSVP');
       }
