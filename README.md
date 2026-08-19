@@ -60,12 +60,12 @@ Can we add sharmilas number.
 Ensure you have **Node.js (v18+)** and **npm** installed on your machine.
 
 ### 2. Environment Configurations
-Create or open the `.env` file in the root folder. You can configure:
+Create or open the `.env` file in the root folder. You can configure: (example)
 ```ini
 PORT=3000
-ADMIN_PASSWORD=loveisintheair2026            # Used to unlock the admin dashboard
-JWT_SECRET=sharmila_dasan_wedding_jwt_secret    # Signed key for dashboard cookie verification
-GROOM_PHONE=15550199                         # Groom's WhatsApp phone number (with country code, no space/signs)
+ADMIN_PASSWORD=password           # Used to unlock the admin dashboard
+JWT_SECRET=jwt_secret    # Signed key for dashboard cookie verification
+GROOM_PHONE=00000000                         # Groom's WhatsApp phone number (with country code, no space/signs)
 ```
 
 ### 3. Launching the App

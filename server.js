@@ -51,8 +51,86 @@ app.get(['/', '/index.html'], (req, res) => {
   serveHtmlWithEnv(path.join(__dirname, 'public', 'index.html'), res);
 });
 
+app.get(['/seats', '/seats.html'], (req, res) => {
+  serveHtmlWithEnv(path.join(__dirname, 'public', 'seats.html'), res);
+});
+
 app.get(['/admin', '/admin.html'], (req, res) => {
   serveHtmlWithEnv(path.join(__dirname, 'public', 'admin.html'), res);
+});
+
+// API endpoint to serve seating arrangement data parsed from seats.csv
+app.get('/api/seats', (req, res) => {
+  try {
+    const csvPath = path.join(__dirname, 'public', 'docs', 'seats.csv');
+    if (!fs.existsSync(csvPath)) {
+      return res.status(404).json({ success: false, error: 'Seats file not found' });
+    }
+    const csvString = fs.readFileSync(csvPath, 'utf8');
+    const lines = csvString.split(/\r?\n/);
+    const tablesMap = new Map();
+
+    lines.forEach(line => {
+      if (!line.trim()) return;
+
+      const parts = [];
+      let currentPart = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          parts.push(currentPart);
+          currentPart = '';
+        } else {
+          currentPart += char;
+        }
+      }
+      parts.push(currentPart);
+
+      if (parts.length < 2) return;
+
+      const rawTableNo = parts[0] ? parts[0].trim() : '';
+      const rawName = parts[1] ? parts[1].trim() : '';
+      const rawCount = parts[2] ? parts[2].trim() : '';
+
+      if (!rawTableNo || rawTableNo.toLowerCase() === 'table no' || !rawName) {
+        return;
+      }
+
+      const tableNoKey = rawTableNo;
+
+      if (!tablesMap.has(tableNoKey)) {
+        tablesMap.set(tableNoKey, {
+          tableNo: tableNoKey,
+          capacity: null,
+          guests: []
+        });
+      }
+
+      const tableData = tablesMap.get(tableNoKey);
+      tableData.guests.push(rawName);
+
+      if (rawCount && !tableData.capacity) {
+        const parsedCount = parseInt(rawCount, 10);
+        if (!isNaN(parsedCount)) {
+          tableData.capacity = parsedCount;
+        }
+      }
+    });
+
+    const tables = Array.from(tablesMap.values()).sort((a, b) => {
+      const numA = parseInt(a.tableNo, 10) || 999;
+      const numB = parseInt(b.tableNo, 10) || 999;
+      return numA - numB;
+    });
+
+    res.json({ success: true, tables });
+  } catch (err) {
+    console.error('Error serving seating data:', err);
+    res.status(500).json({ success: false, error: 'Failed to load seating arrangements' });
+  }
 });
 
 // Serve static files from the 'public' directory
