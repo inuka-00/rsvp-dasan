@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="description" content="You are cordially invited to celebrate the wedding of {{BRIDE_NAME}} & {{GROOM_NAME}}. Join us on our special day.">
-  <title>Wedding of {{BRIDE_NAME}} & {{GROOM_NAME}} - RSVP</title>
+  <title>Wedding of {{BRIDE_NAME}} & {{GROOM_NAME}}</title>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,90 +52,16 @@
       </div>
     </section>
 
-    <!-- RSVP Section -->
-    <section id="rsvp" class="section rsvp-section scroll-reveal">
+    <!-- Seating Plan Section -->
+    <section id="seating" class="section seating-section scroll-reveal">
       <div class="container">
-        <div class="rsvp-card">
-          <h2 class="section-title">RSVP</h2>
-          <p class="rsvp-subtitle">Please respond by August 3rd, 2026 to help us plan our special day.</p>
-          
-          <form id="rsvp-form" class="rsvp-form">
-            <div class="form-group">
-              <label for="guest_name" class="form-label">Your Name</label>
-              <input type="text" id="guest_name" name="guest_name" class="form-input" placeholder="Enter your full name" required>
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label">Will you attend?</label>
-              <div class="rsvp-options">
-                <label class="rsvp-option-card">
-                  <input type="radio" name="status" value="Accepted" checked required>
-                  <div class="option-content">
-                    <span class="option-icon">&#10003;</span>
-                    <div class="option-text-group">
-                      <span class="option-title">Joyfully Accept</span>
-                      <span class="option-desc">Can't wait to celebrate!</span>
-                    </div>
-                  </div>
-                </label>
-                
-                <label class="rsvp-option-card">
-                  <input type="radio" name="status" value="Declined">
-                  <div class="option-content">
-                    <span class="option-icon">&#10007;</span>
-                    <div class="option-text-group">
-                      <span class="option-title">Regretfully Decline</span>
-                      <span class="option-desc">Will toast from afar.</span>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="comment" class="form-label">Message / Wishes <span style="font-weight: 400; text-transform: none; opacity: 0.8;">(Optional)</span></label>
-              <textarea id="comment" name="comment" class="form-input" rows="3" placeholder="Leave a note or wishes for the couple..."></textarea>
-            </div>
-            
-            <button type="submit" id="submit-btn" class="btn btn-primary btn-block">
-              <span class="btn-text">Submit Response</span>
-              <span class="spinner hidden"></span>
-            </button>
-          </form>
-
-          <!-- Success Message -->
-          <div id="rsvp-success" class="rsvp-success hidden">
-            <div class="success-icon">&#10024;</div>
-            <h3 class="success-title">Thank you!</h3>
-            <p id="success-message" class="success-message"></p>
-            
-            <div class="whatsapp-redirect-box">
-              <p class="whatsapp-notice">Select who you would like to send your WhatsApp message to:</p>
-
-              <div class="recipient-selection">
-                <label class="recipient-card">
-                  <input type="radio" name="wa_recipient" value="groom" checked>
-                  <div class="recipient-card-content">
-                    <span class="recipient-role">Groom</span>
-                    <span class="recipient-name">{{GROOM_NAME}}</span>
-                  </div>
-                </label>
-
-                <label class="recipient-card">
-                  <input type="radio" name="wa_recipient" value="bride">
-                  <div class="recipient-card-content">
-                    <span class="recipient-role">Bride</span>
-                    <span class="recipient-name">{{BRIDE_NAME}}</span>
-                  </div>
-                </label>
-              </div>
-
-              <a id="whatsapp-btn" href="#" target="_blank" class="btn btn-whatsapp btn-block">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.967C16.48 2.01 14.041.99 11.996.99c-5.437 0-9.862 4.37-9.866 9.8.001 2.025.534 4.004 1.547 5.75L2.659 20.6l4.246-1.1c.7.2.1-.2 1.7.5zm10.748-7.399c-.29-.145-1.711-.844-1.977-.942-.266-.097-.459-.145-.653.145-.193.29-.749.942-.919 1.138-.17.195-.34.218-.63.073-.29-.145-1.223-.45-2.33-1.439-.86-.767-1.442-1.716-1.611-2.005-.17-.29-.018-.447.127-.591.13-.13.29-.34.435-.508.145-.17.193-.29.29-.483.097-.193.048-.363-.024-.508-.073-.145-.653-1.573-.895-2.153-.235-.568-.475-.491-.653-.5-.17-.008-.363-.009-.556-.009-.193 0-.508.073-.773.363-.266.29-1.014.99-1.014 2.415 0 1.425 1.038 2.802 1.182 2.996.145.193 2.043 3.12 4.949 4.373.691.298 1.231.477 1.652.611.696.22 1.33.189 1.83.114.558-.083 1.711-.698 1.953-1.373.242-.676.242-1.258.17-1.373-.072-.116-.265-.189-.555-.335z"/></svg>
-                Send Message
-              </a>
-            </div>
-          </div>
+        <div class="rsvp-card text-center" style="text-align: center;">
+          <h2 class="section-title">Seating Plan</h2>
+          <p class="rsvp-subtitle">Find your assigned table number and check fellow table companions.</p>
+          <a href="/seats" class="btn btn-primary btn-block" style="text-decoration: none;">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="margin-right:8px;"><path d="M4 18v3h3v-3h10v3h3v-3h1c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v7c0 1.1.9 2 2 2h1zM3 9h18v7H3V9zm9-5c-1.66 0-3 1.34-3 3h6c0-1.66-1.34-3-3-3z"/></svg>
+            Find Your Table & Seat
+          </a>
         </div>
       </div>
     </section>
@@ -166,6 +92,7 @@
       <div class="container">
         <p class="footer-text">Made with Love &bull; {{BRIDE_NAME}} & {{GROOM_NAME}} &bull; 2026</p>
         <div class="footer-admin-link">
+          <a href="/seats" class="admin-link" style="margin-right: 12px;">Seating Plan</a>
           <a href="/admin" class="admin-link">Admin Dashboard</a>
         </div>
       </div>
